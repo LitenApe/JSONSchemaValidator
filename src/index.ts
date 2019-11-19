@@ -1,10 +1,10 @@
-type Array = string[] | number[] | object[] | boolean[];
+type ArrayType = string[] | number[] | object[] | boolean[];
 
-type Schema = {
-    [key: string]: string | number | boolean | Schema | Array | null;
-};
+type SchemaType = {
+    [key: string]: string | number | boolean | SchemaType | ArrayType | null;
+}
 
-function validateSubPart(schema: Schema, blueprint: Schema): boolean {
+function validateSubPart(schema: SchemaType, blueprint: SchemaType): boolean {
     const keys = Object.keys(schema);
 
     for (let i = 0; i < keys.length; i++) {
@@ -16,7 +16,7 @@ function validateSubPart(schema: Schema, blueprint: Schema): boolean {
     return true;
 }
 
-function validate(schema: Schema, blueprint: Boolean | Schema = {}): boolean {
+function validate(schema: SchemaType, blueprint: boolean | SchemaType = {}): boolean {
     if (typeof blueprint === 'boolean') {
         return blueprint;
     }
@@ -28,4 +28,4 @@ function validate(schema: Schema, blueprint: Boolean | Schema = {}): boolean {
     return validateSubPart(schema, blueprint);
 }
 
-export default validate;
+module.exports = validate;
