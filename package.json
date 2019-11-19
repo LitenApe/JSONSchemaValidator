@@ -1,0 +1,21 @@
+{
+  "name": "json-schema-validator",
+  "version": "1.0.0",
+  "description": "Validate JSON Objects",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LitenApe/JSONSchemaValidator.git"
+  },
+  "author": "LitenApe",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/LitenApe/JSONSchemaValidator/issues"
+  },
+  "homepage": "https://github.com/LitenApe/JSONSchemaValidator#readme",
+  "devDependencies": {
+    "typescript": "^3.7.2"
+  }
+}
