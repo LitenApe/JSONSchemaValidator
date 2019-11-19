@@ -10,7 +10,9 @@ function validateSubPart(schema: SchemaType, blueprint: SchemaType): boolean {
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         if (key in blueprint) {
-            console.log(schema[key], blueprint[key]);
+            if (typeof schema[key] === 'object') {
+                validateSubPart(schema[key] as SchemaType, blueprint[key] as SchemaType);
+            }
         }
     }
     return true;

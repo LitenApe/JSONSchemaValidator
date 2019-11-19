@@ -8,6 +8,7 @@ const arrayObject = {'key': []};
 const falseObject = {'key': false};
 const trueObject = {'key': true};
 const nullObject = {'key': null};
+const emptyRecursiveObject = {'key': {'key': {}}}
 
 describe('JSON Schema Validator', () => {
     it('blueprint set as "false" always returns false', () => {
@@ -30,5 +31,9 @@ describe('JSON Schema Validator', () => {
         expect(validator(falseObject, true)).toBe(true);
         expect(validator(trueObject, true)).toBe(true);
         expect(validator(nullObject, true)).toBe(true);
+    });
+
+    it('empty nested object returns true', () => {
+        expect(validator(emptyRecursiveObject, emptyRecursiveObject)).toBe(true);
     });
 });
