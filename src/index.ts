@@ -48,9 +48,21 @@ function validateString(value: string, blueprint: Definition): boolean {
         if (value.length > threshold) return false;
     }
 
-    // TODO: Regex
+    if (blueprint['pattern']) {
+        const re = new RegExp(blueprint['pattern'] as string);
+        if (!re.test(value)) return false;
+    }
 
     // TODO: Format
+    // -> date-time | date | time
+    // -> email | idn-email
+    // -> hostname | idn-hostname
+    // -> ipv4 | ipv6
+    // -> uri | uri-reference | iri | iri-reference
+    // -> uri-template
+    // -> json-pointer
+    // -> relative-json-pointer
+    // -> regex
 
     return true;
 }

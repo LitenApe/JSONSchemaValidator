@@ -95,5 +95,12 @@ describe('JSON Schema Validator', () => {
             expect(validator({'key': 'value'}, blueprint)).toBe(true);
             expect(validator({'key': 'invalid'}, blueprint)).toBe(false);
         });
+
+        it('has "pattern" defined', () => {
+            const blueprint = { definitions: { key: { type: 'string', pattern: '[0-9]' } } };
+            expect(validator({'key': 'value'}, blueprint)).toBe(false);
+            expect(validator({'key': 'value_1'}, blueprint)).toBe(true);
+            expect(validator({'key': '123'}, blueprint)).toBe(true);
+        });
     });
 });
