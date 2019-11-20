@@ -20,11 +20,22 @@ type BlueprintType = {
     definitions: Definitions
 };
 
-function validateString(value: string, blueprint: Definition): boolean {
-    if (blueprint.type !== 'string') return false;
+function validateNumber(value: number, blueprint: Definition): boolean {
+    if (['integer', 'number'].includes(blueprint['type'])) return false;
 
     if (blueprint['validator']) {
-        const validator = blueprint['validator'] as Validator
+        const validator = blueprint['validator'] as Validator;
+        if(!validator(value)) return false;
+    }
+
+    return true;
+}
+
+function validateString(value: string, blueprint: Definition): boolean {
+    if (typeof value !== 'string') return false;
+
+    if (blueprint['validator']) {
+        const validator = blueprint['validator'] as Validator;
         if (!validator(value)) return false;
     }
 
@@ -73,8 +84,10 @@ function validateSubPart(schema: SchemaType, blueprint: Definitions): boolean {
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         if (key in blueprint) {
-            if (typeof schema[key] === 'string') {
+            if (blueprint[key]['type'] === 'string') {
                 if (!validateString(schema[key] as string, blueprint[key])) return false;
+            } else if (blueprint[key]['type'] === 'number') {
+                if (!validateNumber(schema[key] as number, blueprint[key])) return false;
             }
         }
     }
