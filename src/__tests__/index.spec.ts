@@ -1,13 +1,14 @@
 const validator = require('../index');
 
 const emptyObject = {};
-const stringObject = {'key': 'value'};
+const stringObject = {'key': 'This is a string'};
 const numberObject = {'key': 42};
 const objectObject = {'key': {}};
 const arrayObject = {'key': []};
 const falseObject = {'key': false};
 const trueObject = {'key': true};
 const nullObject = {'key': null};
+const undefinedObject = {'key': undefined};
 const emptyRecursiveObject = {'key': {'key': {}}}
 
 describe('JSON Schema Validator', () => {
@@ -21,6 +22,7 @@ describe('JSON Schema Validator', () => {
             expect(validator(falseObject, false)).toBe(false);
             expect(validator(trueObject, false)).toBe(false);
             expect(validator(nullObject, false)).toBe(false);
+            expect(validator(undefinedObject, false)).toBe(false);
         });
     
         it('blueprint set as "true" always returns false', () => {
@@ -32,28 +34,24 @@ describe('JSON Schema Validator', () => {
             expect(validator(falseObject, true)).toBe(true);
             expect(validator(trueObject, true)).toBe(true);
             expect(validator(nullObject, true)).toBe(true);
+            expect(validator(undefinedObject, true)).toBe(true);
         });
     });
 
     describe('string validation', () => {
-        it('has type "string" defined', () => {
+        it('general type validation', () => {
             const blueprint = { definitions: { key: { type: 'string' } } };
             expect(validator(stringObject, blueprint)).toBe(true);
-        });
+            expect(validator({'key': 'Déjà vu'}, blueprint)).toBe(true);
+            expect(validator({'key': ''}, blueprint)).toBe(true);
+            expect(validator({'key': '42'}, blueprint)).toBe(true);
 
-        it('has type "number" defined', () => {
-            const blueprint = { definitions: { key: { type: 'number' } } };
-            expect(validator(stringObject, blueprint)).toBe(false);
-        });
-
-        it('has type "boolean" defined', () => {
-            const blueprint = { definitions: { key: { type: 'boolean' } } };
-            expect(validator(stringObject, blueprint)).toBe(false);
-        });
-
-        it('has type "array" defined', () => {
-            const blueprint = { definitions: { key: { type: 'boolean' } } };
-            expect(validator(stringObject, blueprint)).toBe(false);
+            expect(validator(numberObject, blueprint)).toBe(false);
+            expect(validator(objectObject, blueprint)).toBe(false);
+            expect(validator(arrayObject, blueprint)).toBe(false);
+            expect(validator(falseObject, blueprint)).toBe(false);
+            expect(validator(trueObject, blueprint)).toBe(false);
+            expect(validator(nullObject, blueprint)).toBe(false);
         });
 
         it('has custom validator function defined', () => {
@@ -97,10 +95,19 @@ describe('JSON Schema Validator', () => {
         });
 
         it('has "pattern" defined', () => {
-            const blueprint = { definitions: { key: { type: 'string', pattern: '[0-9]' } } };
-            expect(validator({'key': 'value'}, blueprint)).toBe(false);
-            expect(validator({'key': 'value_1'}, blueprint)).toBe(true);
-            expect(validator({'key': '123'}, blueprint)).toBe(true);
+            const blueprint = {
+                definitions: {
+                    key: {
+                        type: 'string',
+                        pattern: '^(\\([0-9]{3}\\))?[0-9]{3}-[0-9]{4}$'
+                    }
+                }
+            };
+
+            expect(validator({'key': '555-1212'}, blueprint)).toBe(true);
+            expect(validator({'key': '(888)555-1212'}, blueprint)).toBe(true);
+            expect(validator({'key': '(888)555-1212 ext. 532'}, blueprint)).toBe(false);
+            expect(validator({'key': '(800)FLOWERS'}, blueprint)).toBe(false);
         });
     });
 });
