@@ -25,9 +25,32 @@ function validatBoolean(value: boolean, blueprint: Definition): boolean {
 }
 
 function validateNumber(value: number, blueprint: Definition): boolean {
-    if (['integer', 'number'].includes(blueprint['type'])) return false;
+    if (typeof value !== 'number') return false;
+    
+    if (blueprint['type'] === 'integer' && (value % 1.0) !== 0) return false;
 
-    if (blueprint['validator']) {
+    if ('multipleOf' in blueprint) {
+        const multiple = blueprint['multipleOf'] as number;
+        if ((value % multiple) !== 0) return false;
+    }
+
+    if ('minimum' in blueprint) {
+        if (value < blueprint['minimum']) return false;
+    }
+
+    if ('exclusiveMinimum' in blueprint) {
+        if (value <= blueprint['exclusiveMinimum']) return false;
+    }
+
+    if ('maximum' in blueprint) {
+        if (value > blueprint['maximum']) return false;
+    }
+
+    if ('exclusiveMaximum' in blueprint) {
+        if (value >= blueprint['exclusiveMaximum']) return false;
+    }
+
+    if ('validator' in blueprint) {
         const validator = blueprint['validator'] as Validator;
         if(!validator(value)) return false;
     }
@@ -38,32 +61,27 @@ function validateNumber(value: number, blueprint: Definition): boolean {
 function validateString(value: string, blueprint: Definition): boolean {
     if (typeof value !== 'string') return false;
 
-    if (blueprint['validator']) {
-        const validator = blueprint['validator'] as Validator;
-        if (!validator(value)) return false;
-    }
-
-    if (blueprint['enum']) {
+    if ('enum' in blueprint) {
         const enums = blueprint['enum'] as string[];
         if (!enums.includes(value)) return false;
     }
 
-    if (blueprint['const']) {
+    if ('const' in blueprint) {
         const constant = blueprint['const'] as string;
         if (value !== constant) return false;
     }
 
-    if (blueprint['minLength']) {
+    if ('minLength' in blueprint) {
         const threshold = blueprint['minLength'] as number;
         if (value.length < threshold) return false;
     }
 
-    if (blueprint['maxLength']) {
+    if ('maxLength' in blueprint) {
         const threshold = blueprint['maxLength'] as number;
         if (value.length > threshold) return false;
     }
 
-    if (blueprint['pattern']) {
+    if ('pattern' in blueprint) {
         const re = new RegExp(blueprint['pattern'] as string);
         if (!re.test(value)) return false;
     }
@@ -79,6 +97,11 @@ function validateString(value: string, blueprint: Definition): boolean {
     // -> relative-json-pointer
     // -> regex
 
+    if ('validator' in blueprint) {
+        const validator = blueprint['validator'] as Validator;
+        if (!validator(value)) return false;
+    }
+
     return true;
 }
 
@@ -90,7 +113,10 @@ function validateSubPart(schema: SchemaType, blueprint: Definitions): boolean {
         if (key in blueprint) {
             if (blueprint[key]['type'] === 'string') {
                 if (!validateString(schema[key] as string, blueprint[key])) return false;
-            } else if (blueprint[key]['type'] === 'number') {
+            } else if (
+                blueprint[key]['type'] === 'number' ||
+                blueprint[key]['type'] === 'integer'
+                ) {
                 if (!validateNumber(schema[key] as number, blueprint[key])) return false;
             } else if (blueprint[key]['type'] === 'boolean') {
                 if (!validatBoolean(schema[key] as boolean, blueprint[key])) return false;
