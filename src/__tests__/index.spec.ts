@@ -239,4 +239,20 @@ describe('JSON Schema Validator', () => {
             expect(validator({'key': 99}, blueprint)).toBe(false);
         });
     });
+
+    describe('boolean validation', () => {
+        it('general type validation', () => {
+            const blueprint = { definitions: { key: { type: 'boolean' } } };
+            expect(validator(falseObject, blueprint)).toBe(true);
+            expect(validator(trueObject, blueprint)).toBe(true);
+            
+            expect(validator(floatObject, blueprint)).toBe(false);
+            expect(validator(numberObject, blueprint)).toBe(false);
+            expect(validator(stringObject, blueprint)).toBe(false);
+            expect(validator(objectObject, blueprint)).toBe(false);
+            expect(validator(arrayObject, blueprint)).toBe(false);
+            expect(validator(nullObject, blueprint)).toBe(false);
+            expect(validator(undefinedObject, blueprint)).toBe(false);
+        });
+    });
 });

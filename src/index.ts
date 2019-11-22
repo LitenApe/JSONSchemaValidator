@@ -20,6 +20,10 @@ type BlueprintType = {
     definitions: Definitions
 };
 
+function validatBoolean(value: boolean, blueprint: Definition): boolean {
+    return typeof value === blueprint['type'];
+}
+
 function validateNumber(value: number, blueprint: Definition): boolean {
     if (['integer', 'number'].includes(blueprint['type'])) return false;
 
@@ -88,6 +92,8 @@ function validateSubPart(schema: SchemaType, blueprint: Definitions): boolean {
                 if (!validateString(schema[key] as string, blueprint[key])) return false;
             } else if (blueprint[key]['type'] === 'number') {
                 if (!validateNumber(schema[key] as number, blueprint[key])) return false;
+            } else if (blueprint[key]['type'] === 'boolean') {
+                if (!validatBoolean(schema[key] as boolean, blueprint[key])) return false;
             }
         }
     }
