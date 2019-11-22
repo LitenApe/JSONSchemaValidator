@@ -1,32 +1,32 @@
 const validator = require('../index');
 
-const emptyObject = {};
-const stringObject = {'key': 'This is a string'};
-const numberObject = {'key': 42};
-const floatObject = {'key': 3.14};
-const objectObject = {'key': {}};
 const arrayObject = {'key': []};
-const falseObject = {'key': false};
-const trueObject = {'key': true};
-const nullObject = {'key': null};
-const undefinedObject = {'key': undefined};
+const emptyObject = {};
 const emptyRecursiveObject = {'key': {'key': {}}}
+const falseObject = {'key': false};
+const floatObject = {'key': 3.14};
+const nullObject = {'key': null};
+const numberObject = {'key': 42};
+const objectObject = {'key': {}};
+const stringObject = {'key': 'This is a string'};
+const trueObject = {'key': true};
+const undefinedObject = {'key': undefined};
 
 describe('string validation', () => {
     it('general type validation', () => {
         const blueprint = { definitions: { key: { type: 'string' } } };
-        expect(validator(stringObject, blueprint)).toBe(true);
-        expect(validator({'key': 'Déjà vu'}, blueprint)).toBe(true);
         expect(validator({'key': ''}, blueprint)).toBe(true);
         expect(validator({'key': '42'}, blueprint)).toBe(true);
+        expect(validator({'key': 'Déjà vu'}, blueprint)).toBe(true);
+        expect(validator(stringObject, blueprint)).toBe(true);
 
-        expect(validator(numberObject, blueprint)).toBe(false);
-        expect(validator(floatObject, blueprint)).toBe(false);
-        expect(validator(objectObject, blueprint)).toBe(false);
         expect(validator(arrayObject, blueprint)).toBe(false);
         expect(validator(falseObject, blueprint)).toBe(false);
-        expect(validator(trueObject, blueprint)).toBe(false);
+        expect(validator(floatObject, blueprint)).toBe(false);
         expect(validator(nullObject, blueprint)).toBe(false);
+        expect(validator(numberObject, blueprint)).toBe(false);
+        expect(validator(objectObject, blueprint)).toBe(false);
+        expect(validator(trueObject, blueprint)).toBe(false);
     });
 
     it('has "enum" defined', () => {
