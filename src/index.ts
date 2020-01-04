@@ -1,34 +1,59 @@
 type ArrayType = string[] | number[] | object[] | boolean[];
 
 type SchemaType = {
-    [key: string]: string | number | boolean | SchemaType | ArrayType | null;
+    [key: string]: string | number | object | boolean | SchemaType | ArrayType | null;
 };
 
 type Validator = (value: string | number | ArrayType) => boolean;
 
-type Definition = {
-    type: string;
-    [key: string]: string | string[] | number | Validator;
+type NullDefinition = {
+    type: 'null';
 }
 
-type Definitions = {
+type BooleanDefinition = {
+    type: 'boolean';
+}
+
+type NumberDefinition = {
+    type: 'number' | 'integer';
+    multipleOf: number;
+    minimum: number;
+    exclusiveMinimum: number;
+    maximum: number;
+    exclusiveMaximum: number;
+    validator: Validator;
+}
+
+type StringDefinition = {
+    type: 'string';
+    enum: string[];
+    const: string;
+    minLength: number;
+    maxLength: number;
+    pattern: string;
+    validator: Validator;
+}
+
+type Definition = StringDefinition | NumberDefinition | ObjectDefinition | BooleanDefinition | NullDefinition;
+
+type ObjectDefinition = {
     [key: string]: Definition;
-};
+}
 
 type BlueprintType = {
     title?: string;
-    definitions: Definitions
+    definitions: Definition;
 };
 
-function validateNull(value: null, _blueprint: Definition): boolean {
+function validateNull(value: null, _blueprint: NullDefinition): boolean {
     return value === null;
 }
 
-function validatBoolean(value: boolean, blueprint: Definition): boolean {
-    return typeof value === blueprint['type'];
+function validateBoolean(value: boolean, _blueprint: BooleanDefinition): boolean {
+    return typeof value === 'boolean';
 }
 
-function validateNumber(value: number, blueprint: Definition): boolean {
+function validateNumber(value: number, blueprint: NumberDefinition): boolean {
     if (typeof value !== 'number') return false;
     
     if (blueprint['type'] === 'integer' && (value % 1.0) !== 0) return false;
@@ -62,7 +87,7 @@ function validateNumber(value: number, blueprint: Definition): boolean {
     return true;
 }
 
-function validateString(value: string, blueprint: Definition): boolean {
+function validateString(value: string, blueprint: StringDefinition): boolean {
     if (typeof value !== 'string') return false;
 
     if ('enum' in blueprint) {
@@ -109,7 +134,7 @@ function validateString(value: string, blueprint: Definition): boolean {
     return true;
 }
 
-function validateSubPart(schema: SchemaType, blueprint: Definitions): boolean {
+function validateSubPart(schema: SchemaType, blueprint: ObjectDefinition): boolean {
     if (typeof schema !== 'object') return false
     
     const keys = Object.keys(schema);
@@ -118,16 +143,16 @@ function validateSubPart(schema: SchemaType, blueprint: Definitions): boolean {
         const key = keys[i];
         if (key in blueprint) {
             if (blueprint[key]['type'] === 'string') {
-                if (!validateString(schema[key] as string, blueprint[key])) return false;
+                if (!validateString(schema[key] as string, blueprint[key] as StringDefinition)) return false;
             } else if (
                 blueprint[key]['type'] === 'number' ||
                 blueprint[key]['type'] === 'integer'
                 ) {
-                if (!validateNumber(schema[key] as number, blueprint[key])) return false;
+                if (!validateNumber(schema[key] as number, blueprint[key] as NumberDefinition)) return false;
             } else if (blueprint[key]['type'] === 'boolean') {
-                if (!validatBoolean(schema[key] as boolean, blueprint[key])) return false;
+                if (!validateBoolean(schema[key] as boolean, blueprint[key] as BooleanDefinition)) return false;
             } else if (blueprint[key]['type'] === 'null') {
-                if (!validateNull(schema[key] as null, blueprint[key])) return false;
+                if (!validateNull(schema[key] as null, blueprint[key] as NullDefinition)) return false;
             }
         }
     }
@@ -142,7 +167,7 @@ function validate(
 
     if (typeof schema !== 'object') return false;
 
-    return validateSubPart(schema, blueprint.definitions);
+    return validateSubPart(schema, blueprint.definitions as ObjectDefinition);
 }
 
 module.exports = validate;
