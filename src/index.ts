@@ -37,9 +37,9 @@ type StringDefinition = {
 type Definition = StringDefinition | NumberDefinition | ObjectDefinition | BooleanDefinition | NullDefinition;
 
 type ObjectDefinition = {
-    // @ts-ignore
-    type: 'object';
     [key: string]: Definition;
+} & {
+    type: 'object';
 }
 
 type BlueprintType = {
