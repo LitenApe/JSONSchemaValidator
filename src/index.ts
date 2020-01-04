@@ -21,7 +21,7 @@ type BlueprintType = {
 };
 
 function validateNull(value: null, _blueprint: Definition): boolean {
-    return value !== null;
+    return value === null;
 }
 
 function validatBoolean(value: boolean, blueprint: Definition): boolean {
@@ -110,6 +110,8 @@ function validateString(value: string, blueprint: Definition): boolean {
 }
 
 function validateSubPart(schema: SchemaType, blueprint: Definitions): boolean {
+    if (typeof schema !== 'object') return false
+    
     const keys = Object.keys(schema);
 
     for (let i = 0; i < keys.length; i++) {
@@ -125,7 +127,7 @@ function validateSubPart(schema: SchemaType, blueprint: Definitions): boolean {
             } else if (blueprint[key]['type'] === 'boolean') {
                 if (!validatBoolean(schema[key] as boolean, blueprint[key])) return false;
             } else if (blueprint[key]['type'] === 'null') {
-                if (validateNull(schema[key] as null, blueprint[key])) return false;
+                if (!validateNull(schema[key] as null, blueprint[key])) return false;
             }
         }
     }
