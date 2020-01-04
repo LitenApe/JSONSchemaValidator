@@ -37,6 +37,8 @@ type StringDefinition = {
 type Definition = StringDefinition | NumberDefinition | ObjectDefinition | BooleanDefinition | NullDefinition;
 
 type ObjectDefinition = {
+    // @ts-ignore
+    type: 'object';
     [key: string]: Definition;
 }
 
@@ -136,7 +138,7 @@ function validateString(value: string, blueprint: StringDefinition): boolean {
 
 function validateSubPart(schema: SchemaType, blueprint: ObjectDefinition): boolean {
     if (typeof schema !== 'object') return false
-    
+
     const keys = Object.keys(schema);
 
     for (let i = 0; i < keys.length; i++) {
@@ -153,6 +155,8 @@ function validateSubPart(schema: SchemaType, blueprint: ObjectDefinition): boole
                 if (!validateBoolean(schema[key] as boolean, blueprint[key] as BooleanDefinition)) return false;
             } else if (blueprint[key]['type'] === 'null') {
                 if (!validateNull(schema[key] as null, blueprint[key] as NullDefinition)) return false;
+            } else if (blueprint[key]['type'] === 'object') {
+                if (!validateSubPart(schema[key] as SchemaType, blueprint[key] as ObjectDefinition)) return false;
             }
         }
     }
